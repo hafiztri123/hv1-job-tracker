@@ -2,23 +2,21 @@ package config
 
 import (
 	"fmt"
+	"hafiztri123/hv1-job-tracker/internal/user"
+	"hafiztri123/hv1-job-tracker/internal/utils"
 	"log/slog"
-	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func NewConfig() *Config {
-	if err := godotenv.Load(); err != nil {
-		slog.Warn("godotenv failed to initialized. Using default value for env", "error", err)
-	}
 
-	dbUser := getEnv("DB_USER", "admin")
-	dbPass := getEnv("DB_PASSWORD", "admin")
-	dbName := getEnv("DB_NAME", "app")
-	dbPort := getEnv("DB_PORT", "5432")
-	appHost := getEnv("APP_HOST", "localhost")
+	dbUser := utils.GetEnv("DB_USER", "admin")
+	dbPass := utils.GetEnv("DB_PASSWORD", "admin")
+	dbName := utils.GetEnv("DB_NAME", "app")
+	dbPort := utils.GetEnv("DB_PORT", "5432")
+	appHost := utils.GetEnv("APP_HOST", "localhost")
 
 	pgUrl := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
@@ -29,7 +27,7 @@ func NewConfig() *Config {
 		dbName,
 	)
 
-	maxConns := getEnv("DB_MAX_CONNS", "10")
+	maxConns := utils.GetEnv("DB_MAX_CONNS", "10")
 	maxConnsInt, err := strconv.Atoi(maxConns)
 
 	if err != nil {
@@ -43,14 +41,14 @@ func NewConfig() *Config {
 	}
 }
 
-func getEnv(key, defaultValue string) string {
-	value, ok := os.LookupEnv(key)
-
-	if !ok {
-		slog.Warn("using default value for env", "key", key)
-		return defaultValue
+func NewRepositories(db *pgxpool.Pool) *Repositories {
+	return &Repositories{
+		UserRepository: user.NewUserRepository(db),
 	}
+}
 
-	return value
-
+func NewService(r *Repositories) *Services {
+	return &Services{
+		UserService: user.NewUserService(r.UserRepository),
+	}
 }
