@@ -23,3 +23,12 @@ db-ver:
 
 db-force:
 	@migrate -database "$(DB_URL)" -path migrations force $(v)
+
+
+test:
+	@go test -coverprofile=coverage.out ./internal/...
+	@go tool cover -func=coverage.out
+
+test-html:
+	@go test -coverprofile=coverage.out ./internal/...
+	@go tool cover -html=coverage.out
