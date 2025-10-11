@@ -12,7 +12,7 @@ func NewConfig() *Config {
 	if err := godotenv.Load(); err != nil {
 		slog.Warn("godotenv failed to initialized. Using default value for env", "error", err)
 	}
-	
+
 	dbUser := getEnv("DB_USER", "admin")
 	dbPass := getEnv("DB_PASSWORD", "admin")
 	dbName := getEnv("DB_NAME", "app")
