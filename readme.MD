@@ -1,9 +1,9 @@
-Job Tracker V1
+# Job Tracker V1
 
 
-# Changelog:
+## Changelog:
 
-## v1.0:
+### v1.0:
 - initial commit
 
 
