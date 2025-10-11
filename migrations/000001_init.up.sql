@@ -1,9 +1,9 @@
 create table if not exists users (
     id uuid primary key default gen_random_uuid(),
-    email varchar(255) unique not null,
+    email varchar(255) not null,
     first_name varchar(50),
     last_name varchar(50),
-    passowrd_hash varchar(255) not null,
+    password_hash varchar(255) not null,
     created_at timestamptz not null default now(),
     updated_at timestamptz,
     deleted_at timestamptz

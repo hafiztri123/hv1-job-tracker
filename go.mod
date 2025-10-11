@@ -3,6 +3,7 @@ module hafiztri123/hv1-job-tracker
 go 1.23.5
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/joho/godotenv v1.5.1
 )
