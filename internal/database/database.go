@@ -7,21 +7,30 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewDatabase(cfg *config.Config, ctx context.Context) error {
+type Database struct {
+	Pool *pgxpool.Pool
+}
+
+func NewDatabase(cfg *config.Config, ctx context.Context) (*Database, error) {
 
 	config, err := pgxpool.ParseConfig(cfg.DbAddr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	config.MaxConns = cfg.DbMaxConns
 
 	dbPool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
-		return err
+		defer dbPool.Close()
+		return nil, err
 	}
 
-	defer dbPool.Close()
+	return &Database{Pool: dbPool}, nil
+}
 
-	return nil
+func (d *Database) Close() {
+	if d.Pool != nil {
+		d.Pool.Close()
+	}
 }

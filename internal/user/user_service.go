@@ -6,12 +6,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func NewUserService(repo *UserRepository) *UserService {
-	return &UserService{
-		Repo: repo,
-	}
-}
-
 func (u *UserService) RegisterUser(req *RegisterUserDto, ctx context.Context) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
 	if err != nil {

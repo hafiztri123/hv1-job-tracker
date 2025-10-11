@@ -1,6 +1,7 @@
 package config
 
 import (
+	"hafiztri123/hv1-job-tracker/internal/utils"
 	"os"
 	"testing"
 )
@@ -12,7 +13,7 @@ func TestGetEnv(t *testing.T) {
 		os.Setenv(key, expectedValue)
 		defer os.Unsetenv(key)
 
-		result := getEnv(key, "default")
+		result := utils.GetEnv(key, "default")
 
 		if result != expectedValue {
 			t.Errorf("expected %s, got %s", expectedValue, result)
@@ -24,7 +25,7 @@ func TestGetEnv(t *testing.T) {
 		defaultValue := "default_value"
 		os.Unsetenv(key)
 
-		result := getEnv(key, defaultValue)
+		result := utils.GetEnv(key, defaultValue)
 
 		if result != defaultValue {
 			t.Errorf("expected %s, got %s", defaultValue, result)
@@ -36,7 +37,7 @@ func TestGetEnv(t *testing.T) {
 		os.Setenv(key, "")
 		defer os.Unsetenv(key)
 
-		result := getEnv(key, "default")
+		result := utils.GetEnv(key, "default")
 
 		if result != "" {
 			t.Errorf("expected empty string, got %s", result)

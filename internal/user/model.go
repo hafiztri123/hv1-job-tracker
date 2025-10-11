@@ -1,9 +1,8 @@
 package user
 
 import (
-	"database/sql"
-
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type User struct {
@@ -18,7 +17,7 @@ type User struct {
 }
 
 type UserRepository struct {
-	Db *sql.DB
+	Db *pgxpool.Pool
 }
 
 type UserService struct {
@@ -30,4 +29,16 @@ type RegisterUserDto struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Password  string `json:"password"`
+}
+
+func NewUserService(repo *UserRepository) *UserService {
+	return &UserService{
+		Repo: repo,
+	}
+}
+
+func NewUserRepository(db *pgxpool.Pool) *UserRepository {
+	return &UserRepository{
+		Db: db,
+	}
 }

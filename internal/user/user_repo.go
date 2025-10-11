@@ -16,7 +16,7 @@ func (r *UserRepository) CreateUser(user *User, ctx context.Context) error {
 	password_hash
 	) values ($1, $2, $3, $4)`
 
-	_, err := r.Db.ExecContext(ctx, createQuery, user.Email, user.FirstName, user.LastName, user.PasswordHash)
+	_, err := r.Db.Exec(ctx, createQuery, user.Email, user.FirstName, user.LastName, user.PasswordHash)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
