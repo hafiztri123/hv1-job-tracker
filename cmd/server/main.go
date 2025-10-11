@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"hafiztri123/hv1-job-tracker/internal/config"
+	"hafiztri123/hv1-job-tracker/internal/database"
 	"log/slog"
 	"net/http"
 	"os"
@@ -11,9 +13,18 @@ import (
 )
 
 func main() {
+	startCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
+
+	cfg := config.NewConfig()
+
+	if err := database.NewDatabase(cfg, startCtx); err != nil {
+		slog.Error("failed to connect to database", "error", err)
+		os.Exit(1)
+	}
 
 	srv := &http.Server{
 		Addr:    ":3000",
@@ -35,10 +46,10 @@ func main() {
 
 	slog.Info("Starting graceful shutdown...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	endCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(endCtx); err != nil {
 		slog.Error("failed to gracefully shutdown", "error", err)
 		os.Exit(1)
 	}
