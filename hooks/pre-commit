@@ -1,4 +1,13 @@
 #!/bin/sh
+set -e 
+
+echo "Running go fmt..."
 go fmt ./...
+
+git add -u
+
+echo "Running golangci-lint..."
 golangci-lint run
+
+echo "Running tests..."
 go test ./...
