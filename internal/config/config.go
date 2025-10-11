@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -28,8 +29,17 @@ func NewConfig() *Config {
 		dbName,
 	)
 
+	maxConns := getEnv("DB_MAX_CONNS", "10")
+	maxConnsInt, err := strconv.Atoi(maxConns)
+
+	if err != nil {
+		slog.Warn("failed to set max conns, use default value", "error", err)
+		maxConnsInt = 10
+	}
+
 	return &Config{
-		DbAddr: pgUrl,
+		DbAddr:     pgUrl,
+		DbMaxConns: int32(maxConnsInt),
 	}
 }
 
