@@ -1,6 +1,8 @@
 package config
 
-import "hafiztri123/hv1-job-tracker/internal/user"
+import (
+	"hafiztri123/hv1-job-tracker/internal/user"
+)
 
 type Config struct {
 	DbAddr     string
