@@ -10,13 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-func NewRouter(h *handler.Handler) *fiber.App {
-	app := fiber.New(fiber.Config{
-		AppName:      "Job Tracker v1.0",
-		Prefork:      false,
-		ServerHeader: "Fiber",
-		BodyLimit:    10 * 1024 * 1024,
-	})
+func NewRouter(h *handler.Handler, cfg fiber.Config) *fiber.App {
+	app := fiber.New(cfg)
 
 	app.Use(logger.New(logger.Config{
 		Format: "[${time}] ${status} - ${method} ${path} (${latency})\n",
@@ -40,6 +35,7 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 	api := app.Group("/api/v1")
 
 	api.Get("/health", h.HealthHandler)
+	api.Post("/user/register", h.RegisterUserHandler)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{

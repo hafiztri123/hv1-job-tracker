@@ -2,6 +2,9 @@ package handler
 
 import (
 	"hafiztri123/hv1-job-tracker/internal/config"
+	"hafiztri123/hv1-job-tracker/internal/user"
+	"hafiztri123/hv1-job-tracker/internal/utils"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,4 +17,37 @@ func NewHandler(services *config.Services) *Handler {
 
 func (h *Handler) HealthHandler(c *fiber.Ctx) error {
 	return c.SendString("OK")
+}
+
+func (h *Handler) RegisterUserHandler(c *fiber.Ctx) error {
+	dto := new(user.RegisterUserDto)
+
+	if err := c.BodyParser(dto); err != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Bad Request"),
+			utils.WithStatus(http.StatusBadRequest),
+		)
+	}
+
+	if errors := utils.ValidateStruct(dto); errors != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithStatus(http.StatusBadRequest),
+			utils.WithMessage("invalid request body"),
+			utils.WithError(errors),
+		)
+	}
+
+	err := h.UserService.RegisterUser(dto)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("User created"),
+		utils.WithStatus(http.StatusCreated),
+	)
 }
