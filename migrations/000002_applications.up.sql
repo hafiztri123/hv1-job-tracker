@@ -6,7 +6,7 @@ CREATE TABLE applications (
     job_url TEXT,
     salary_range VARCHAR(100), 
     location VARCHAR(255),
-    status VARCHAR(50) NOT NULL DEFAULT 'Wishlist',
+    status VARCHAR(50) DEFAULT 'Wishlist',
     notes TEXT, 
     applied_date TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),

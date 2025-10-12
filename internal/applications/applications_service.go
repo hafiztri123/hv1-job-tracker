@@ -1,6 +1,12 @@
 package applications
 
 func (s *ApplicationService) CreateApplication(req *CreateApplicationDto, userId string) error {
+
+	if req.Status == nil {
+		req.Status = new(string)
+		*req.Status = "Wishlist"
+	}
+
 	if err := s.repo.InsertApplication(req, userId); err != nil {
 		return err
 	}

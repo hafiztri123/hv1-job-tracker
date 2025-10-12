@@ -12,7 +12,8 @@ import (
 
 func NewHandler(services *config.Services) *Handler {
 	return &Handler{
-		UserService: services.UserService,
+		UserService:        services.UserService,
+		ApplicationService: services.ApplicationService,
 	}
 }
 

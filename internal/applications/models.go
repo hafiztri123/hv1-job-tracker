@@ -12,14 +12,14 @@ type Application struct {
 	UserId        uuid.UUID  `json:"userId"`
 	CompanyName   string     `json:"companyName"`
 	PositionTitle string     `json:"positionTitle"`
-	JobUrl        string     `json:"jobUrl"`
-	SalaryRange   string     `json:"salaryRange"`
-	Location      string     `json:"location"`
-	Status        string     `json:"status"`
-	Notes         string     `json:"notes"`
-	AppliedDate   time.Time  `json:"appliedDate"`
+	JobUrl        *string    `json:"jobUrl"`
+	SalaryRange   *string    `json:"salaryRange"`
+	Location      *string    `json:"location"`
+	Status        *string    `json:"status"`
+	Notes         *string    `json:"notes"`
+	AppliedDate   *time.Time `json:"appliedDate"`
 	CreatedAt     time.Time  `json:"createdAt"`
-	UpdatedAt     time.Time  `json:"updatedAt"`
+	UpdatedAt     *time.Time `json:"updatedAt"`
 	DeletedAt     *time.Time `json:"deletedAt"`
 }
 

@@ -16,7 +16,7 @@ func (r *ApplicationRepository) InsertApplication(req *CreateApplicationDto, use
 			location,
 			status,
 			notes,
-			applied_date,
+			applied_date
 		) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	`
 
