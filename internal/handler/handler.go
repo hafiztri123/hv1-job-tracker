@@ -51,3 +51,35 @@ func (h *Handler) RegisterUserHandler(c *fiber.Ctx) error {
 		utils.WithStatus(http.StatusCreated),
 	)
 }
+
+func (h *Handler) LoginUserHandler(c *fiber.Ctx) error {
+	dto := new(user.LoginUserDto)
+
+	if err := c.BodyParser(dto); err != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Bad Request"),
+			utils.WithStatus(http.StatusBadRequest),
+		)
+	}
+
+	if errors := utils.ValidateStruct(dto); errors != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithStatus(http.StatusBadRequest),
+			utils.WithMessage("invalid request body"),
+			utils.WithError(errors),
+		)
+	}
+
+	token, err := h.UserService.LoginUser(dto)
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Login success"),
+		utils.WithData(token),
+	)
+}

@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	appError "hafiztri123/hv1-job-tracker/internal/error"
@@ -48,4 +49,35 @@ func (r *UserRepository) CreateUser(user *User) error {
 	}
 
 	return nil
+}
+
+func (r *UserRepository) FindUserByEmail(email string) (*User, error) {
+	fetchQuery := `select id, email, first_name, last_name, password_hash from users
+		where email = $1 and deleted_at is null
+	`
+
+	user := new(User)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err := r.Db.QueryRow(ctx, fetchQuery, email).Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.PasswordHash,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, appError.ErrNotFound
+		}
+
+		return nil, err
+
+	}
+
+	return user, nil
+
 }

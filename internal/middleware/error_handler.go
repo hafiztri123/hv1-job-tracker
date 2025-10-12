@@ -34,7 +34,7 @@ func ErrorHandler() fiber.ErrorHandler {
 		return utils.NewResponse(
 			c,
 			utils.WithStatus(http.StatusInternalServerError),
-			utils.WithError(err),
+			utils.WithError(err.Error()),
 			utils.WithMessage("Internal Server Error"),
 		)
 

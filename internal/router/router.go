@@ -1,6 +1,7 @@
 package router
 
 import (
+	"hafiztri123/hv1-job-tracker/internal/auth"
 	"hafiztri123/hv1-job-tracker/internal/handler"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 
@@ -34,8 +35,9 @@ func NewRouter(h *handler.Handler, cfg fiber.Config) *fiber.App {
 func setupRoutes(app *fiber.App, h *handler.Handler) {
 	api := app.Group("/api/v1")
 
-	api.Get("/health", h.HealthHandler)
 	api.Post("/user/register", h.RegisterUserHandler)
+	api.Post("/user/login", h.LoginUserHandler)
+	api.Get("/health", auth.AuthMiddleware, h.HealthHandler)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{
