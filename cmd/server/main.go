@@ -42,7 +42,7 @@ func main() {
 	repos := config.NewRepositories(db.Pool)
 	services := config.NewService(repos)
 	handler := handler.NewHandler(services)
-	app := router.NewRouter(handler)
+	app := router.NewRouter(handler, config.NewRouterConfig())
 
 	appPort := utils.GetEnv("APP_PORT", "3000")
 

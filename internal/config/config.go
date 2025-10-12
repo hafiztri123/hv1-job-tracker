@@ -2,11 +2,14 @@ package config
 
 import (
 	"fmt"
+	"hafiztri123/hv1-job-tracker/internal/middleware"
 	"hafiztri123/hv1-job-tracker/internal/user"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 	"log/slog"
 	"strconv"
+	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -39,6 +42,40 @@ func NewConfig() *Config {
 		DbAddr:     pgUrl,
 		DbMaxConns: int32(maxConnsInt),
 	}
+}
+
+func NewRouterConfig() fiber.Config {
+	baseConfig := fiber.Config{
+		AppName:      "Job Tracker v1.0",
+		ServerHeader: "Fiber",
+		ErrorHandler: middleware.ErrorHandler(),
+		BodyLimit:    10 * 10 * 1024,
+	}
+
+	isDev, err := strconv.ParseBool(utils.GetEnv("IS_DEV", "true"))
+	if err != nil {
+		isDev = true
+	}
+
+	if isDev {
+		slog.Info("using router config", "mode", "development")
+		baseConfig.ReadTimeout = 300 * time.Second
+		baseConfig.WriteTimeout = 60 * time.Second
+		baseConfig.IdleTimeout = 600 * time.Second
+		baseConfig.Prefork = false
+
+		return baseConfig
+	} else {
+		slog.Info("using router config", "mode", "production")
+		baseConfig.ReadTimeout = 120 * time.Second
+		baseConfig.Prefork = true
+		baseConfig.WriteTimeout = 10 * time.Second
+		baseConfig.IdleTimeout = 120 * time.Second
+
+	}
+
+	return baseConfig
+
 }
 
 func NewRepositories(db *pgxpool.Pool) *Repositories {
