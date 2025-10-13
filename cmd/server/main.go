@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -21,6 +22,12 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		slog.Warn("godotenv failed to initialized. Using default value for env", "error", err)
 	}
+
+	isDev, err := strconv.ParseBool(utils.GetEnv("IS_DEV", "false"))
+	if err != nil {
+		isDev = false
+	}
+	slog.Info("dev mode", "mode", isDev)
 
 	startCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
@@ -42,7 +49,7 @@ func main() {
 	repos := config.NewRepositories(db.Pool)
 	services := config.NewService(repos)
 	handler := handler.NewHandler(services)
-	app := router.NewRouter(handler, config.NewRouterConfig())
+	app := router.NewRouter(handler, config.NewRouterConfig(isDev), isDev)
 
 	appPort := utils.GetEnv("APP_PORT", "3000")
 

@@ -2,6 +2,8 @@ package router
 
 import (
 	"hafiztri123/hv1-job-tracker/internal/auth"
+	"hafiztri123/hv1-job-tracker/internal/config"
+	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"hafiztri123/hv1-job-tracker/internal/handler"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 
@@ -11,14 +13,14 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-func NewRouter(h *handler.Handler, cfg fiber.Config) *fiber.App {
+func NewRouter(h *handler.Handler, cfg fiber.Config, isDev bool) *fiber.App {
 	app := fiber.New(cfg)
 
 	app.Use(logger.New(logger.Config{
 		Format: "[${time}] ${status} - ${method} ${path} (${latency})\n",
 	}))
 
-	app.Use(recover.New())
+	app.Use(recover.New(config.NewRecoverConfig(isDev)))
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: utils.GetEnv("CORS_ORIGIN", "*"),
@@ -38,6 +40,18 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 	api.Post("/user/register", h.RegisterUserHandler)
 	api.Post("/user/login", h.LoginUserHandler)
 	api.Get("/health", h.HealthHandler)
+
+	api.Get("/auth/verify", auth.AuthMiddleware, func(c *fiber.Ctx) error {
+		userId, ok := c.Locals("userId").(string)
+		if !ok {
+			return appError.ErrUnauthorized
+		}
+
+		return utils.NewResponse(
+			c,
+			utils.WithData(userId),
+		)
+	})
 
 	applications := api.Group("/applications")
 	applications.Use(auth.AuthMiddleware)

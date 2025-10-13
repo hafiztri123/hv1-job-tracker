@@ -158,6 +158,7 @@ func (h *Handler) GetApplicationsHandler(c *fiber.Ctx) error {
 }
 
 func (h *Handler) DeleteApplicationHandler(c *fiber.Ctx) error {
+
 	id := c.Params("id")
 	userId, ok := c.Locals("userId").(string)
 
