@@ -130,6 +130,12 @@ func (h *Handler) CreateApplicationHandler(c *fiber.Ctx) error {
 
 func (h *Handler) GetApplicationsHandler(c *fiber.Ctx) error {
 
+	var queryParams applications.ApplicationQueryParams
+
+	if err := c.QueryParser(&queryParams); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
 	userId, ok := c.Locals("userId").(string)
 	if !ok {
 		return utils.NewResponse(
@@ -139,7 +145,7 @@ func (h *Handler) GetApplicationsHandler(c *fiber.Ctx) error {
 		)
 	}
 
-	applications, err := h.ApplicationService.GetApplications(userId)
+	applications, err := h.ApplicationService.GetApplications(userId, queryParams)
 	if err != nil {
 		return err
 	}

@@ -19,3 +19,7 @@ type CreateApplicationDto struct {
 type ApplicationOptionQueryParams struct {
 	StatusOption bool `json:"statusOption"`
 }
+
+type ApplicationQueryParams struct {
+	Status *string `json:"status"`
+}

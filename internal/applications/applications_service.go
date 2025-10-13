@@ -14,8 +14,8 @@ func (s *ApplicationService) CreateApplication(req *CreateApplicationDto, userId
 	return nil
 }
 
-func (s *ApplicationService) GetApplications(userId string) ([]Application, error) {
-	applications, err := s.repo.FindApplicationsById(userId)
+func (s *ApplicationService) GetApplications(userId string, queryParams ApplicationQueryParams) ([]Application, error) {
+	applications, err := s.repo.FindApplicationsById(userId, queryParams)
 
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package applications
 
 import (
 	"context"
+	"fmt"
 	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"time"
 )
@@ -34,7 +35,7 @@ func (r *ApplicationRepository) InsertApplication(req *CreateApplicationDto, use
 
 }
 
-func (r *ApplicationRepository) FindApplicationsById(userId string) ([]Application, error) {
+func (r *ApplicationRepository) FindApplicationsById(userId string, queryParams ApplicationQueryParams) ([]Application, error) {
 	fetchQuery := `
 		select 
 		id, 
@@ -53,10 +54,19 @@ func (r *ApplicationRepository) FindApplicationsById(userId string) ([]Applicati
 		from applications where user_id = $1 and deleted_at is null
 	`
 
+	args := []any{userId}
+	paramCount := 1
+
+	if queryParams.Status != nil {
+		paramCount++
+		fetchQuery += fmt.Sprintf(" and status = $%d", paramCount)
+		args = append(args, *queryParams.Status)
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	rows, err := r.db.Query(ctx, fetchQuery, userId)
+	rows, err := r.db.Query(ctx, fetchQuery, args...)
 	if err != nil {
 		return nil, err
 	}
