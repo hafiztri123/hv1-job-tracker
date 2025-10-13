@@ -29,3 +29,15 @@ func (s *ApplicationService) DeleteApplications(userId, applicationId string) er
 
 	return err
 }
+
+func (s *ApplicationService) GetApplicationOptions(queryParams ApplicationOptionQueryParams) ApplicationOptions {
+	options := ApplicationOptions{
+		StatusOption: []string{},
+	}
+
+	if queryParams.StatusOption {
+		options.StatusOption = []string{"Wishlist", "Applied", "Interviewing", "Offer", "Rejected"}
+	}
+
+	return options
+}

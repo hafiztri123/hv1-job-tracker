@@ -46,3 +46,11 @@ func NewInternalServerError(errorMsg string) *AppError {
 		StatusCode: http.StatusInternalServerError,
 	}
 }
+
+func NewBadRequestError(errorMsg string) *AppError {
+	return &AppError{
+		Err:        errors.New(errorMsg),
+		Message:    "Bad Request",
+		StatusCode: http.StatusBadRequest,
+	}
+}

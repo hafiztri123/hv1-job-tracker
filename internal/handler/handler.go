@@ -174,3 +174,20 @@ func (h *Handler) DeleteApplicationHandler(c *fiber.Ctx) error {
 		utils.WithMessage("Successfully deleted applications"),
 	)
 }
+
+func (h *Handler) GetApplicationOptionsHandler(c *fiber.Ctx) error {
+	var queryParams applications.ApplicationOptionQueryParams
+
+	if err := c.QueryParser(&queryParams); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
+	options := h.ApplicationService.GetApplicationOptions(queryParams)
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Successfully get application options"),
+		utils.WithData(options),
+	)
+
+}

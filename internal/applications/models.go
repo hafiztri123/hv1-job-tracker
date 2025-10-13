@@ -23,6 +23,10 @@ type Application struct {
 	DeletedAt     *time.Time `json:"deletedAt"`
 }
 
+type ApplicationOptions struct {
+	StatusOption []string `json:"statusOption"`
+}
+
 type ApplicationRepository struct {
 	db *pgxpool.Pool
 }

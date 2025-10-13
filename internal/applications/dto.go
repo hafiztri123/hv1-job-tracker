@@ -15,3 +15,7 @@ type CreateApplicationDto struct {
 	Notes       *string    `json:"notes" validate:"omitempty"`
 	AppliedDate *time.Time `json:"appliedDate" validate:"omitempty"`
 }
+
+type ApplicationOptionQueryParams struct {
+	StatusOption bool `json:"statusOption"`
+}
