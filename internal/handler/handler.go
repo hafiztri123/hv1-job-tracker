@@ -3,6 +3,7 @@ package handler
 import (
 	"hafiztri123/hv1-job-tracker/internal/applications"
 	"hafiztri123/hv1-job-tracker/internal/config"
+	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"hafiztri123/hv1-job-tracker/internal/user"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 	"net/http"
@@ -145,8 +146,31 @@ func (h *Handler) GetApplicationsHandler(c *fiber.Ctx) error {
 
 	return utils.NewResponse(
 		c,
-		utils.WithMessage("Application created"),
-		utils.WithStatus(http.StatusCreated),
+		utils.WithMessage("Successfully get applications"),
 		utils.WithData(applications),
+	)
+}
+
+func (h *Handler) DeleteApplicationHandler(c *fiber.Ctx) error {
+	id := c.Params("id")
+	userId, ok := c.Locals("userId").(string)
+
+	if !ok {
+		return appError.ErrUnauthorized
+	}
+
+	if id == "" {
+		return appError.ErrInvalidInput
+	}
+
+	err := h.ApplicationService.DeleteApplications(userId, id)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Successfully deleted applications"),
 	)
 }

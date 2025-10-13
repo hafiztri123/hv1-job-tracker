@@ -14,11 +14,15 @@ func ErrorHandler() fiber.ErrorHandler {
 
 		var appError *appError.AppError
 		if errors.As(err, &appError) {
+			errorMsg := ""
+			if appError.Err != nil {
+				errorMsg = appError.Err.Error()
+			}
 			return utils.NewResponse(
 				c,
 				utils.WithStatus(appError.StatusCode),
 				utils.WithMessage(appError.Message),
-				utils.WithError(appError.Err.Error()),
+				utils.WithError(errorMsg),
 			)
 		}
 

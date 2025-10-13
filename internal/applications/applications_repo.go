@@ -2,6 +2,7 @@ package applications
 
 import (
 	"context"
+	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"time"
 )
 
@@ -35,8 +36,21 @@ func (r *ApplicationRepository) InsertApplication(req *CreateApplicationDto, use
 
 func (r *ApplicationRepository) FindApplicationsById(userId string) ([]Application, error) {
 	fetchQuery := `
-		select id, user_id, company_name, position_title, job_url, salary_range, location, status, notes, applied_date, created_at, updated_at, deleted_at
-		from applications where user_id = $1
+		select 
+		id, 
+		user_id, 
+		company_name, 
+		position_title, 
+		job_url, 
+		salary_range, 
+		location, 
+		status, 
+		notes, 
+		applied_date, 
+		created_at, 
+		updated_at, 
+		deleted_at
+		from applications where user_id = $1 and deleted_at is null
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
@@ -81,4 +95,28 @@ func (r *ApplicationRepository) FindApplicationsById(userId string) ([]Applicati
 	}
 
 	return applications, err
+}
+
+func (r *ApplicationRepository) DeleteApplications(userId, applicationId string) error {
+	updateQuery := `
+		update applications
+		set deleted_at = now()
+		where id = $1 and user_id = $2;
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	result, err := r.db.Exec(ctx, updateQuery, applicationId, userId)
+	if err != nil {
+		return appError.NewInternalServerError(err.Error())
+	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		return appError.NewNotFoundErr("Application not found")
+	}
+
+	return nil
+
 }

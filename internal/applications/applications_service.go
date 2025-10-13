@@ -23,3 +23,9 @@ func (s *ApplicationService) GetApplications(userId string) ([]Application, erro
 
 	return applications, nil
 }
+
+func (s *ApplicationService) DeleteApplications(userId, applicationId string) error {
+	err := s.repo.DeleteApplications(userId, applicationId)
+
+	return err
+}

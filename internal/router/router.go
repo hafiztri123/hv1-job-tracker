@@ -43,6 +43,7 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 	applications.Use(auth.AuthMiddleware)
 	applications.Get("/", h.GetApplicationsHandler)
 	applications.Post("/", h.CreateApplicationHandler)
+	applications.Put("/:id", h.DeleteApplicationHandler)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{
