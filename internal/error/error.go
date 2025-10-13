@@ -30,3 +30,27 @@ var (
 		StatusCode: http.StatusUnauthorized,
 	}
 )
+
+func NewNotFoundErr(errorMsg string) *AppError {
+	return &AppError{
+		Err:        errors.New(errorMsg),
+		Message:    "Not Found",
+		StatusCode: http.StatusNotFound,
+	}
+}
+
+func NewInternalServerError(errorMsg string) *AppError {
+	return &AppError{
+		Err:        errors.New(errorMsg),
+		Message:    "Internal Server Error",
+		StatusCode: http.StatusInternalServerError,
+	}
+}
+
+func NewBadRequestError(errorMsg string) *AppError {
+	return &AppError{
+		Err:        errors.New(errorMsg),
+		Message:    "Bad Request",
+		StatusCode: http.StatusBadRequest,
+	}
+}

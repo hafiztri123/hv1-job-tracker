@@ -2,6 +2,7 @@ package utils
 
 import (
 	"net/http"
+	"reflect"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -29,7 +30,23 @@ func WithMessage(msg string) ResponseOption {
 
 func WithData(data any) ResponseOption {
 	return func(r *Response) {
-		r.Data = data
+		if data == nil {
+			r.Data = data
+			return
+		}
+
+		if data != nil {
+			val := reflect.ValueOf(data)
+			if val.Kind() == reflect.Slice {
+				r.Data = map[string]any{
+					"data":      data,
+					"dataCount": val.Len(),
+				}
+
+			} else {
+				r.Data = data
+			}
+		}
 	}
 }
 

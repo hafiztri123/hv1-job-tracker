@@ -7,6 +7,9 @@ endif
 
 DB_URL := postgres://$(DB_USER):$(DB_PASSWORD)@$(APP_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
 
+APP_PATH=./cmd/server
+BIN_PATH=./tmp/main
+
 
 db-create:
 	@migrate create -ext sql -dir ./migrations -seq $(v)
@@ -32,3 +35,9 @@ test:
 test-html:
 	@go test -coverprofile=coverage.out ./internal/...
 	@go tool cover -html=coverage.out
+
+run:
+	@echo "Building..."
+	@go build -o $(BIN_PATH) $(APP_PATH)
+	@echo "Running..."
+	@$(BIN_PATH)

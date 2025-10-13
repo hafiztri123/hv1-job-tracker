@@ -37,7 +37,15 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 
 	api.Post("/user/register", h.RegisterUserHandler)
 	api.Post("/user/login", h.LoginUserHandler)
-	api.Get("/health", auth.AuthMiddleware, h.HealthHandler)
+	api.Get("/health", h.HealthHandler)
+
+	applications := api.Group("/applications")
+	applications.Use(auth.AuthMiddleware)
+	applications.Get("/", h.GetApplicationsHandler)
+	applications.Post("/", h.CreateApplicationHandler)
+	applications.Delete("/:id", h.DeleteApplicationHandler)
+	applications.Put("/:id", h.UpdateApplicationHandler)
+	applications.Get("/options", h.GetApplicationOptionsHandler)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{

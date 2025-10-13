@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"hafiztri123/hv1-job-tracker/internal/applications"
 	"hafiztri123/hv1-job-tracker/internal/config"
+	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"hafiztri123/hv1-job-tracker/internal/user"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 	"net/http"
@@ -11,7 +13,8 @@ import (
 
 func NewHandler(services *config.Services) *Handler {
 	return &Handler{
-		UserService: services.UserService,
+		UserService:        services.UserService,
+		ApplicationService: services.ApplicationService,
 	}
 }
 
@@ -82,4 +85,153 @@ func (h *Handler) LoginUserHandler(c *fiber.Ctx) error {
 		utils.WithMessage("Login success"),
 		utils.WithData(token),
 	)
+}
+
+func (h *Handler) CreateApplicationHandler(c *fiber.Ctx) error {
+	dto := new(applications.CreateApplicationDto)
+
+	if err := c.BodyParser(dto); err != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Bad Request"),
+			utils.WithStatus(http.StatusBadRequest),
+		)
+	}
+
+	if errors := utils.ValidateStruct(dto); errors != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithStatus(http.StatusBadRequest),
+			utils.WithMessage("invalid request body"),
+			utils.WithError(errors),
+		)
+	}
+
+	userId, ok := c.Locals("userId").(string)
+	if !ok {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Unauthorized"),
+			utils.WithStatus(http.StatusUnauthorized),
+		)
+	}
+
+	err := h.ApplicationService.CreateApplication(dto, userId)
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Application created"),
+		utils.WithStatus(http.StatusCreated),
+	)
+}
+
+func (h *Handler) GetApplicationsHandler(c *fiber.Ctx) error {
+
+	var queryParams applications.ApplicationQueryParams
+
+	if err := c.QueryParser(&queryParams); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
+	userId, ok := c.Locals("userId").(string)
+	if !ok {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Unauthorized"),
+			utils.WithStatus(http.StatusUnauthorized),
+		)
+	}
+
+	applications, err := h.ApplicationService.GetApplications(userId, queryParams)
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Successfully get applications"),
+		utils.WithData(applications),
+	)
+}
+
+func (h *Handler) DeleteApplicationHandler(c *fiber.Ctx) error {
+	id := c.Params("id")
+	userId, ok := c.Locals("userId").(string)
+
+	if !ok {
+		return appError.ErrUnauthorized
+	}
+
+	if id == "" {
+		return appError.ErrInvalidInput
+	}
+
+	err := h.ApplicationService.DeleteApplications(userId, id)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Successfully deleted applications"),
+	)
+}
+
+func (h *Handler) GetApplicationOptionsHandler(c *fiber.Ctx) error {
+	var queryParams applications.ApplicationOptionQueryParams
+
+	if err := c.QueryParser(&queryParams); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
+	options := h.ApplicationService.GetApplicationOptions(queryParams)
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Successfully get application options"),
+		utils.WithData(options),
+	)
+
+}
+
+func (h *Handler) UpdateApplicationHandler(c *fiber.Ctx) error {
+	var body applications.UpdateApplicationDto
+
+	if err := c.BodyParser(&body); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
+	if errors := utils.ValidateStruct(body); errors != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Bad Request"),
+			utils.WithStatus(http.StatusBadRequest),
+			utils.WithError(errors),
+		)
+	}
+
+	userId, ok := c.Locals("userId").(string)
+	if !ok {
+		return appError.ErrUnauthorized
+	}
+
+	applicationId := c.Params("id")
+	if applicationId == "" {
+		return appError.NewBadRequestError("Application id is missing")
+	}
+
+	err := h.ApplicationService.UpdateApplication(body, userId, applicationId)
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Application updated"),
+	)
+
 }

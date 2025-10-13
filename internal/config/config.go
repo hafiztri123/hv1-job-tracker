@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"hafiztri123/hv1-job-tracker/internal/applications"
 	"hafiztri123/hv1-job-tracker/internal/middleware"
 	"hafiztri123/hv1-job-tracker/internal/user"
 	"hafiztri123/hv1-job-tracker/internal/utils"
@@ -80,12 +81,14 @@ func NewRouterConfig() fiber.Config {
 
 func NewRepositories(db *pgxpool.Pool) *Repositories {
 	return &Repositories{
-		UserRepository: user.NewUserRepository(db),
+		UserRepository:        user.NewUserRepository(db),
+		ApplicationRepository: applications.NewApplicationRepository(db),
 	}
 }
 
 func NewService(r *Repositories) *Services {
 	return &Services{
-		UserService: user.NewUserService(r.UserRepository),
+		UserService:        user.NewUserService(r.UserRepository),
+		ApplicationService: applications.NewApplicationService(r.ApplicationRepository),
 	}
 }
