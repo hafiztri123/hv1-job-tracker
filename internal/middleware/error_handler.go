@@ -3,44 +3,37 @@ package middleware
 import (
 	"errors"
 	appError "hafiztri123/hv1-job-tracker/internal/error"
-	"hafiztri123/hv1-job-tracker/internal/utils"
-	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func ErrorHandler() fiber.ErrorHandler {
+func ErrorHandler(isDev bool) fiber.ErrorHandler {
 	return func(c *fiber.Ctx, err error) error {
+		code := fiber.StatusInternalServerError
+		message := "Internal Server Error"
 
 		var appError *appError.AppError
 		if errors.As(err, &appError) {
-			errorMsg := ""
-			if appError.Err != nil {
-				errorMsg = appError.Err.Error()
-			}
-			return utils.NewResponse(
-				c,
-				utils.WithStatus(appError.StatusCode),
-				utils.WithMessage(appError.Message),
-				utils.WithError(errorMsg),
-			)
+			code = appError.StatusCode
+			message = appError.Message
 		}
 
 		var fiberErr *fiber.Error
 		if errors.As(err, &fiberErr) {
-			return utils.NewResponse(
-				c,
-				utils.WithStatus(fiberErr.Code),
-				utils.WithMessage(fiberErr.Message),
-			)
+			code = fiberErr.Code
+			message = fiberErr.Message
 		}
 
-		return utils.NewResponse(
-			c,
-			utils.WithStatus(http.StatusInternalServerError),
-			utils.WithError(err.Error()),
-			utils.WithMessage("Internal Server Error"),
-		)
+		response := fiber.Map{
+			"status":  "code",
+			"message": message,
+		}
 
+		if isDev {
+			response["error"] = err.Error()
+			response["path"] = c.Path()
+		}
+
+		return c.Status(code).JSON(response)
 	}
 }
