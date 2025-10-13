@@ -43,7 +43,8 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 	applications.Use(auth.AuthMiddleware)
 	applications.Get("/", h.GetApplicationsHandler)
 	applications.Post("/", h.CreateApplicationHandler)
-	applications.Put("/:id", h.DeleteApplicationHandler)
+	applications.Delete("/:id", h.DeleteApplicationHandler)
+	applications.Put("/:id", h.UpdateApplicationHandler)
 	applications.Get("/options", h.GetApplicationOptionsHandler)
 
 	app.Use(func(c *fiber.Ctx) error {

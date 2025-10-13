@@ -62,7 +62,7 @@ func main() {
 
 	slog.Info("Starting graceful shutdown...")
 
-	if err := app.ShutdownWithTimeout(30 * time.Second); err != nil {
+	if err := app.ShutdownWithTimeout(5 * time.Second); err != nil {
 		slog.Error("failed to gracefully shutdown", "error", err)
 		os.Exit(1)
 	}

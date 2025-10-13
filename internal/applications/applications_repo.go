@@ -111,7 +111,7 @@ func (r *ApplicationRepository) DeleteApplications(userId, applicationId string)
 	updateQuery := `
 		update applications
 		set deleted_at = now()
-		where id = $1 and user_id = $2;
+		where id = $1 and user_id = $2 and deleted_at is null;
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
@@ -125,6 +125,93 @@ func (r *ApplicationRepository) DeleteApplications(userId, applicationId string)
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
 		return appError.NewNotFoundErr("Application not found")
+	}
+
+	return nil
+}
+
+func (r *ApplicationRepository) UpdateApplications(userId, applicationId string, body *UpdateApplicationDto) error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return appError.NewInternalServerError(err.Error())
+	}
+	defer func() {
+		err = tx.Rollback(ctx)
+		if err != nil {
+			return
+		}
+	}()
+
+	query := "update applications set updated_at = now()"
+	args := []any{}
+	paramCount := 0
+
+	if body.CompanyName != nil {
+		paramCount++
+		query += fmt.Sprintf(" , company_name = $%d", paramCount)
+		args = append(args, *body.CompanyName)
+	}
+
+	if body.PositionTitle != nil {
+		paramCount++
+		query += fmt.Sprintf(" , position_title = $%d", paramCount)
+		args = append(args, *body.PositionTitle)
+	}
+
+	if body.JobUrl != nil {
+		paramCount++
+		query += fmt.Sprintf(" , job_url = $%d", paramCount)
+		args = append(args, *body.JobUrl)
+	}
+
+	if body.SalaryRange != nil {
+		paramCount++
+		query += fmt.Sprintf(" , salary_range = $%d", paramCount)
+		args = append(args, *body.SalaryRange)
+	}
+
+	if body.Location != nil {
+		paramCount++
+		query += fmt.Sprintf(" , location = $%d", paramCount)
+		args = append(args, *body.Location)
+	}
+
+	if body.Status != nil {
+		paramCount++
+		query += fmt.Sprintf(" , status = $%d", paramCount)
+		args = append(args, *body.Status)
+	}
+
+	if body.Notes != nil {
+		paramCount++
+		query += fmt.Sprintf(" , notes = $%d", paramCount)
+		args = append(args, *body.Notes)
+	}
+
+	if body.AppliedDate != nil {
+		paramCount++
+		query += fmt.Sprintf(" , applied_date = $%d", paramCount)
+		args = append(args, *body.AppliedDate)
+	}
+
+	query += fmt.Sprintf(" where id = $%d and user_id = $%d and deleted_at is null", paramCount+1, paramCount+2)
+	args = append(args, applicationId, userId)
+
+	result, err := tx.Exec(ctx, query, args...)
+	if err != nil {
+		return appError.NewInternalServerError(err.Error())
+	}
+
+	if result.RowsAffected() == 0 {
+		return appError.NewNotFoundErr("Application not found")
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return appError.NewInternalServerError(err.Error())
 	}
 
 	return nil

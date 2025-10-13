@@ -197,3 +197,41 @@ func (h *Handler) GetApplicationOptionsHandler(c *fiber.Ctx) error {
 	)
 
 }
+
+func (h *Handler) UpdateApplicationHandler(c *fiber.Ctx) error {
+	var body applications.UpdateApplicationDto
+
+	if err := c.BodyParser(&body); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
+	if errors := utils.ValidateStruct(body); errors != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Bad Request"),
+			utils.WithStatus(http.StatusBadRequest),
+			utils.WithError(errors),
+		)
+	}
+
+	userId, ok := c.Locals("userId").(string)
+	if !ok {
+		return appError.ErrUnauthorized
+	}
+
+	applicationId := c.Params("id")
+	if applicationId == "" {
+		return appError.NewBadRequestError("Application id is missing")
+	}
+
+	err := h.ApplicationService.UpdateApplication(body, userId, applicationId)
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Application updated"),
+	)
+
+}

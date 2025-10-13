@@ -41,3 +41,9 @@ func (s *ApplicationService) GetApplicationOptions(queryParams ApplicationOption
 
 	return options
 }
+
+func (s *ApplicationService) UpdateApplication(body UpdateApplicationDto, userId, applicationId string) error {
+
+	return s.repo.UpdateApplications(userId, applicationId, &body)
+
+}
