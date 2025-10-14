@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+@theme {
+  --color-background: 0 0% 0%;
+  --color-foreground: 0 0% 100%;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not(.dark) {
+    --color-background: 0 0% 100%;
+    --color-foreground: 0 0% 0%;
+  }
+}
