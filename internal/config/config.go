@@ -7,10 +7,12 @@ import (
 	"hafiztri123/hv1-job-tracker/internal/user"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 	"log/slog"
+	"runtime/debug"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -45,17 +47,12 @@ func NewConfig() *Config {
 	}
 }
 
-func NewRouterConfig() fiber.Config {
+func NewRouterConfig(isDev bool) fiber.Config {
 	baseConfig := fiber.Config{
 		AppName:      "Job Tracker v1.0",
 		ServerHeader: "Fiber",
-		ErrorHandler: middleware.ErrorHandler(),
+		ErrorHandler: middleware.ErrorHandler(isDev),
 		BodyLimit:    10 * 10 * 1024,
-	}
-
-	isDev, err := strconv.ParseBool(utils.GetEnv("IS_DEV", "true"))
-	if err != nil {
-		isDev = true
 	}
 
 	if isDev {
@@ -69,7 +66,7 @@ func NewRouterConfig() fiber.Config {
 	} else {
 		slog.Info("using router config", "mode", "production")
 		baseConfig.ReadTimeout = 120 * time.Second
-		baseConfig.Prefork = true
+		baseConfig.Prefork = false //change when real production
 		baseConfig.WriteTimeout = 10 * time.Second
 		baseConfig.IdleTimeout = 120 * time.Second
 
@@ -91,4 +88,28 @@ func NewService(r *Repositories) *Services {
 		UserService:        user.NewUserService(r.UserRepository),
 		ApplicationService: applications.NewApplicationService(r.ApplicationRepository),
 	}
+}
+
+func NewRecoverConfig(isDev bool) recover.Config {
+	if isDev {
+		return recover.Config{
+			EnableStackTrace: true,
+			StackTraceHandler: func(c *fiber.Ctx, e interface{}) {
+				slog.Error("Panic occured",
+					"error", e,
+					"path", c.Path(),
+					"method", c.Method())
+
+				fmt.Printf("\n📍 Stack Trace:\n%s\n\n", debug.Stack())
+			},
+		}
+	}
+
+	return recover.Config{
+		EnableStackTrace: false,
+		StackTraceHandler: func(c *fiber.Ctx, e interface{}) {
+			slog.Error("panic occurred", "error", e, "path", c.Path(), "method", c.Path(), "ip", c.IP())
+		},
+	}
+
 }

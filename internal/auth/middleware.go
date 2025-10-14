@@ -34,7 +34,6 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	})
 
 	if err != nil || !token.Valid {
-		slog.Error("token invalid", "valid", token.Valid, "error", err)
 		return utils.NewResponse(
 			c,
 			utils.WithMessage("Unauthorized"),
