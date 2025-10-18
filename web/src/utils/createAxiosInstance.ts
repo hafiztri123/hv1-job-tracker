@@ -38,7 +38,7 @@ const setAxiosInstanceResponseInterceptor = (instance: AxiosInstance) => {
   instance.interceptors.response.use((response) => response, (error: AxiosError) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('user')
-      router.push({ name: 'login' })
+      router.push({ name: 'auth' })
     }
 
     return Promise.reject(error)
