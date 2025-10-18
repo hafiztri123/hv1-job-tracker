@@ -31,6 +31,10 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     toast.success(`Success, ${isRegister.value ? 'register' : 'login'} success`)
+
+    if(isRegister.value) {
+      handleFormSwitch()
+    }
   } catch (error: unknown) {
     toast.error(`Error, ${isRegister.value ? 'register' : 'login'} failed`)
     if (error instanceof AxiosError) {

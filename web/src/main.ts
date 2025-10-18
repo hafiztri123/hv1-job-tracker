@@ -10,7 +10,7 @@ const options: PluginOptions = {
   position: POSITION.BOTTOM_RIGHT,
   closeOnClick: true,
   closeButton: false,
-  timeout: 1000,
+  timeout: 2000,
 }
 
 const app = createApp(App)
