@@ -81,3 +81,27 @@ func (r *UserRepository) FindUserByEmail(email string) (*User, error) {
 	return user, nil
 
 }
+
+func (r *UserRepository) FindUserById(id string) (*User, error) {
+	fetchQuery := `select id, first_name, last_name from users where id = $1 and deleted_at is null`
+
+	user := new(User)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err := r.Db.QueryRow(ctx, fetchQuery, id).Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, appError.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return user, nil
+}

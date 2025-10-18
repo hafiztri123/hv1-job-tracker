@@ -7,10 +7,12 @@ import { AuthService } from '@/services'
 import { useToast } from 'vue-toastification'
 import { AxiosError } from 'axios'
 import { camelToTitle } from '@/utils/camelCaseSplit'
+import { useRouter } from 'vue-router'
 
+const toast = useToast()
+const router = useRouter()
 const formRef = useTemplateRef<typeof Form>('formRef')
 const isRegister = shallowRef<boolean>(false)
-const toast = useToast()
 const fieldError = ref<{ field: string; message: string }[]>([])
 
 const handleSubmit = async (): Promise<void> => {
@@ -34,6 +36,8 @@ const handleSubmit = async (): Promise<void> => {
 
     if(isRegister.value) {
       handleFormSwitch()
+    } else {
+      router.push({ name: 'home' })
     }
   } catch (error: unknown) {
     toast.error(`Error, ${isRegister.value ? 'register' : 'login'} failed`)

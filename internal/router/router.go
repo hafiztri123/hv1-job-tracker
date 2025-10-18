@@ -5,6 +5,7 @@ import (
 	"hafiztri123/hv1-job-tracker/internal/config"
 	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"hafiztri123/hv1-job-tracker/internal/handler"
+	"hafiztri123/hv1-job-tracker/internal/user"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -47,9 +48,21 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 			return appError.ErrUnauthorized
 		}
 
+		fullUser, err := h.UserService.Repo.FindUserById(userId)
+
+		if err != nil {
+			return err
+		}
+
+		resp := new(user.GetUserDetailResponse)
+
+		resp.ID = fullUser.ID
+		resp.FirstName = fullUser.FirstName
+		resp.LastName = fullUser.LastName
+
 		return utils.NewResponse(
 			c,
-			utils.WithData(userId),
+			utils.WithData(resp),
 		)
 	})
 
