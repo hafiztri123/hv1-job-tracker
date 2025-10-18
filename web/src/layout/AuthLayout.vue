@@ -3,7 +3,7 @@ import Auth from '@/components/module/auth/Auth.vue'
 </script>
 
 <template>
-  <div class="w-screen h-screen bg-black/35 p-6">
+  <div class="fixed inset-0 lg:bg-black/35 p-6">
     <Auth />
   </div>
 </template>
