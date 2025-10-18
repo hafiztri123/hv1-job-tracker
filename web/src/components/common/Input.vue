@@ -10,6 +10,7 @@ const props = defineProps<{
   min?: number
   max?: number
   required?: boolean
+  invalid?: boolean
 }>()
 
 const formValue = inject<Record<string, string>>('formValue')
@@ -106,7 +107,7 @@ watch(
         :placeholder="placeholder ? placeholder : `Enter your ${label}`"
         class="relative border px-3 py-2 w-full rounded-md outline-none overflow-hidden transition-colors"
         :class="{
-          'border-red-500 ring-2 ring-red-200': showWarning.max || showWarning.min || showWarning.required,
+          'border-red-500 ring-2 ring-red-200': showWarning.max || showWarning.min || showWarning.required || invalid,
 
           'pr-10' : type === 'password',
 

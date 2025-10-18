@@ -12,17 +12,25 @@ const registerValidation = (field: string, isvalid: boolean) => {
   validationRegistry[field] = isvalid
 }
 
+const clearInput = () => {
+  Object.keys(formValue).forEach((key) => {
+    formValue[key] = ''
+  })
+
+}
 
 provide('formValue', formValue)
 provide('registerValidation', registerValidation)
 
 defineExpose({
   formValue,
-  isFormValid
+  clearInput,
+  isFormValid,
 })
 </script>
 
 <template>
-  <slot name="default" />
-  <slot name="footer" />
+  <div class="flex flex-col gap-2">
+    <slot name="default" />
+  </div>
 </template>

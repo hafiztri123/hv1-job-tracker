@@ -20,6 +20,7 @@ const getBehaviour = computed<HTMLAttributes['class']>(() => {
 
 <template>
   <button
+    :disabled
     class="w-full  p-2 rounded-md text-center font-semibold "
     :class="getBehaviour"
   >
