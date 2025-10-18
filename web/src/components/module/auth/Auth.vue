@@ -2,8 +2,6 @@
 import { Form, Input, Button } from '@/components/common'
 import logo from '../../../assets/logo.svg'
 import { useTemplateRef } from 'vue'
-import { AxiosResponse } from 'axios'
-import { FetchDetailResponse } from '@/services/type/response.type'
 import { AuthService } from '@/services'
 
 const formRef = useTemplateRef<typeof Form>('formRef')

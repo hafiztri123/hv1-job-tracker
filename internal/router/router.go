@@ -37,8 +37,8 @@ func NewRouter(h *handler.Handler, cfg fiber.Config, isDev bool) *fiber.App {
 func setupRoutes(app *fiber.App, h *handler.Handler) {
 	api := app.Group("/api/v1")
 
-	api.Post("/user/register", h.RegisterUserHandler)
-	api.Post("/user/login", h.LoginUserHandler)
+	api.Post("/auth/register", h.RegisterUserHandler)
+	api.Post("/auth/login", h.LoginUserHandler)
 	api.Get("/health", h.HealthHandler)
 
 	api.Get("/auth/verify", auth.AuthMiddleware, func(c *fiber.Ctx) error {

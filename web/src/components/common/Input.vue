@@ -74,7 +74,6 @@ watch(
       showWarning.value.min = value.value.length < props.min
     }
 
-    console.log(value.value.length)
 
     if (props.required) {
       showWarning.value.required = !value.value || value.value.length === 0
