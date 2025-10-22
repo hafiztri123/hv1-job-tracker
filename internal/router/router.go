@@ -3,9 +3,7 @@ package router
 import (
 	"hafiztri123/hv1-job-tracker/internal/auth"
 	"hafiztri123/hv1-job-tracker/internal/config"
-	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"hafiztri123/hv1-job-tracker/internal/handler"
-	"hafiztri123/hv1-job-tracker/internal/user"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -42,29 +40,7 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 	api.Post("/auth/login", h.LoginUserHandler)
 	api.Get("/health", h.HealthHandler)
 
-	api.Get("/auth/verify", auth.AuthMiddleware, func(c *fiber.Ctx) error {
-		userId, ok := c.Locals("userId").(string)
-		if !ok {
-			return appError.ErrUnauthorized
-		}
-
-		fullUser, err := h.UserService.Repo.FindUserById(userId)
-
-		if err != nil {
-			return err
-		}
-
-		resp := new(user.GetUserDetailResponse)
-
-		resp.ID = fullUser.ID
-		resp.FirstName = fullUser.FirstName
-		resp.LastName = fullUser.LastName
-
-		return utils.NewResponse(
-			c,
-			utils.WithData(resp),
-		)
-	})
+	api.Get("/auth/verify", auth.AuthMiddleware, h.VerifyTokenHandler)
 
 	applications := api.Group("/applications")
 	applications.Use(auth.AuthMiddleware)

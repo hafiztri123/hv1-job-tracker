@@ -236,3 +236,27 @@ func (h *Handler) UpdateApplicationHandler(c *fiber.Ctx) error {
 	)
 
 }
+
+func (h *Handler) VerifyTokenHandler(c *fiber.Ctx) error {
+	userId, ok := c.Locals("userId").(string)
+	if !ok {
+		return appError.ErrUnauthorized
+	}
+
+	fullUser, err := h.UserService.Repo.FindUserById(userId)
+
+	if err != nil {
+		return err
+	}
+
+	resp := new(user.GetUserDetailResponse)
+
+	resp.ID = fullUser.ID
+	resp.FirstName = fullUser.FirstName
+	resp.LastName = fullUser.LastName
+
+	return utils.NewResponse(
+		c,
+		utils.WithData(resp),
+	)
+}
