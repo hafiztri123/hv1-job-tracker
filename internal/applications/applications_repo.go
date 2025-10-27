@@ -217,3 +217,55 @@ func (r *ApplicationRepository) UpdateApplications(userId, applicationId string,
 	return nil
 
 }
+
+func (r *ApplicationRepository) BatchDeleteApplications(userId string, applicationIds []string) error {
+	if len(applicationIds) == 0 {
+		return appError.NewBadRequestError("No application IDs provided")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	query := `
+		update applications
+		set deleted_at = now()
+		where id = ANY($1) and user_id = $2 and deleted_at is null
+	`
+
+	result, err := r.db.Exec(ctx, query, applicationIds, userId)
+	if err != nil {
+		return appError.NewInternalServerError(err.Error())
+	}
+
+	if result.RowsAffected() == 0 {
+		return appError.NewNotFoundErr("No applications found to delete")
+	}
+
+	return nil
+}
+
+func (r *ApplicationRepository) BatchUpdateStatusApplications(userId string, applicationIds []string, status string) error {
+	if len(applicationIds) == 0 {
+		return appError.NewBadRequestError("No application IDs provided")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	query := `
+		update applications
+		set status = $1, updated_at = now()
+		where id = ANY($2) and user_id = $3 and deleted_at is null
+	`
+
+	result, err := r.db.Exec(ctx, query, status, applicationIds, userId)
+	if err != nil {
+		return appError.NewInternalServerError(err.Error())
+	}
+
+	if result.RowsAffected() == 0 {
+		return appError.NewNotFoundErr("No applications found to update")
+	}
+
+	return nil
+}

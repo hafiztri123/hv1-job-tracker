@@ -14,6 +14,9 @@ const AuthServices = {
   },
   verify: (): Promise<AxiosResponse<FetchDetailResponse>> => {
     return API.get('/verify')
+  },
+  logout: (): Promise<AxiosResponse> => {
+    return API.post('/logout')
   }
 }
 

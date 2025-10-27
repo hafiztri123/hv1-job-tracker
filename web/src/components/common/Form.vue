@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { computed, provide, reactive } from 'vue'
 
-const formValue = reactive<Record<string, string>>({})
+interface Props {
+  formValue: Record<string, string>
+  onRegisterValidation?: (field: string, isValid: boolean) => void
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{ clear: [] }>()
+
 const validationRegistry = reactive<Record<string, boolean>>({})
 
 const isFormValid = computed<boolean>(() => {
@@ -10,20 +17,20 @@ const isFormValid = computed<boolean>(() => {
 
 const registerValidation = (field: string, isvalid: boolean) => {
   validationRegistry[field] = isvalid
+  if (props.onRegisterValidation) {
+    props.onRegisterValidation(field, isvalid)
+  }
 }
 
 const clearInput = () => {
-  Object.keys(formValue).forEach((key) => {
-    formValue[key] = ''
-  })
-
+  emit('clear')
 }
 
-provide('formValue', formValue)
+provide('formValue', props.formValue)
 provide('registerValidation', registerValidation)
 
 defineExpose({
-  formValue,
+  formValue: props.formValue,
   clearInput,
   isFormValid,
 })

@@ -47,3 +47,11 @@ func (s *ApplicationService) UpdateApplication(body UpdateApplicationDto, userId
 	return s.repo.UpdateApplications(userId, applicationId, &body)
 
 }
+
+func (s *ApplicationService) BatchDeleteApplications(userId string, req *BatchDeleteDto) error {
+	return s.repo.BatchDeleteApplications(userId, req.ApplicationIds)
+}
+
+func (s *ApplicationService) BatchUpdateStatusApplications(userId string, req *BatchUpdateStatusDto) error {
+	return s.repo.BatchUpdateStatusApplications(userId, req.ApplicationIds, req.Status)
+}

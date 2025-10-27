@@ -95,6 +95,7 @@ func (h *Handler) CreateApplicationHandler(c *fiber.Ctx) error {
 			c,
 			utils.WithMessage("Bad Request"),
 			utils.WithStatus(http.StatusBadRequest),
+			utils.WithError(err.Error()),
 		)
 	}
 
@@ -237,6 +238,70 @@ func (h *Handler) UpdateApplicationHandler(c *fiber.Ctx) error {
 
 }
 
+func (h *Handler) BatchDeleteApplicationHandler(c *fiber.Ctx) error {
+	var dto applications.BatchDeleteDto
+
+	if err := c.BodyParser(&dto); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
+	if errors := utils.ValidateStruct(dto); errors != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Bad Request"),
+			utils.WithStatus(http.StatusBadRequest),
+			utils.WithError(errors),
+		)
+	}
+
+	userId, ok := c.Locals("userId").(string)
+	if !ok {
+		return appError.ErrUnauthorized
+	}
+
+	err := h.ApplicationService.BatchDeleteApplications(userId, &dto)
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Applications deleted successfully"),
+	)
+}
+
+func (h *Handler) BatchUpdateStatusApplicationHandler(c *fiber.Ctx) error {
+	var dto applications.BatchUpdateStatusDto
+
+	if err := c.BodyParser(&dto); err != nil {
+		return appError.NewBadRequestError(err.Error())
+	}
+
+	if errors := utils.ValidateStruct(dto); errors != nil {
+		return utils.NewResponse(
+			c,
+			utils.WithMessage("Bad Request"),
+			utils.WithStatus(http.StatusBadRequest),
+			utils.WithError(errors),
+		)
+	}
+
+	userId, ok := c.Locals("userId").(string)
+	if !ok {
+		return appError.ErrUnauthorized
+	}
+
+	err := h.ApplicationService.BatchUpdateStatusApplications(userId, &dto)
+	if err != nil {
+		return err
+	}
+
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Application statuses updated successfully"),
+	)
+}
+
 func (h *Handler) VerifyTokenHandler(c *fiber.Ctx) error {
 	userId, ok := c.Locals("userId").(string)
 	if !ok {
@@ -258,5 +323,12 @@ func (h *Handler) VerifyTokenHandler(c *fiber.Ctx) error {
 	return utils.NewResponse(
 		c,
 		utils.WithData(resp),
+	)
+}
+
+func (h *Handler) LogoutHandler(c *fiber.Ctx) error {
+	return utils.NewResponse(
+		c,
+		utils.WithMessage("Logged out successfully"),
 	)
 }

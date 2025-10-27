@@ -20,10 +20,12 @@ const showWarning = ref<{
   max: boolean
   min: boolean
   required: boolean
+  url: boolean
 }>({
   max: false,
   min: false,
   required: false,
+  url: false,
 })
 const touched = shallowRef<boolean>(false)
 const showPassword = shallowRef<boolean>(false)
@@ -35,6 +37,15 @@ const isValid = computed<boolean>(() => {
   if (!length && props.required) return false
   if (props.min && length > 0 && length < props.min) return false
   if (props.max && length > props.max) return false
+
+  // Validate URL format if type is URL
+  if (props.type === 'url' && length > 0) {
+    try {
+      new URL(value.value)
+    } catch {
+      return false
+    }
+  }
 
   return true
 })
@@ -69,15 +80,24 @@ const handleKeyDown = (e: KeyboardEvent) => {
 }
 
 watch(
-  () => value.value.length,
-  () => {
+  () => value.value,
+  (val) => {
     if (props.min) {
-      showWarning.value.min = value.value.length < props.min
+      showWarning.value.min = val.length > 0 && val.length < props.min
     }
 
-
     if (props.required) {
-      showWarning.value.required = !value.value || value.value.length === 0
+      showWarning.value.required = !val || val.length === 0
+    }
+
+    // Validate URL format
+    if (props.type === 'url' && val.length > 0) {
+      try {
+        new URL(val)
+        showWarning.value.url = false
+      } catch {
+        showWarning.value.url = true
+      }
     }
   },
 )
@@ -107,7 +127,7 @@ watch(
         :placeholder="placeholder ? placeholder : `Enter your ${label}`"
         class="relative border px-3 py-2 w-full rounded-md outline-none overflow-hidden transition-colors"
         :class="{
-          'border-red-500 ring-2 ring-red-200': showWarning.max || showWarning.min || showWarning.required || invalid,
+          'border-red-500 ring-2 ring-red-200': showWarning.max || showWarning.min || showWarning.required || showWarning.url || invalid,
 
           'pr-10' : type === 'password',
 
@@ -138,6 +158,10 @@ watch(
 
       <span v-else-if="showWarning.required" class="text-sm text-red-500 font-medium">
         This field is required
+      </span>
+
+      <span v-else-if="showWarning.url" class="text-sm text-red-500 font-medium">
+        Please enter a valid URL (e.g., https://example.com)
       </span>
     </Transition>
   </div>

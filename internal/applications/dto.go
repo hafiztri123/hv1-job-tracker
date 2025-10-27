@@ -34,3 +34,12 @@ type ApplicationOptionQueryParams struct {
 type ApplicationQueryParams struct {
 	Status *string `json:"status"`
 }
+
+type BatchDeleteDto struct {
+	ApplicationIds []string `json:"applicationIds" validate:"required,min=1"`
+}
+
+type BatchUpdateStatusDto struct {
+	ApplicationIds []string `json:"applicationIds" validate:"required,min=1"`
+	Status         string   `json:"status" validate:"required,min=2,max=50"`
+}
