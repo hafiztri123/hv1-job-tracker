@@ -12,6 +12,12 @@ const AuthServices = {
   register: (body: RegisterBody): Promise<AxiosResponse> => {
     return API.post('/register', body)
   },
+  verify: (): Promise<AxiosResponse<FetchDetailResponse>> => {
+    return API.get('/verify')
+  },
+  logout: (): Promise<AxiosResponse> => {
+    return API.post('/logout')
+  }
 }
 
 export default AuthServices

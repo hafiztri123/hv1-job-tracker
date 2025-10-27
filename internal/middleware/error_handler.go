@@ -25,7 +25,7 @@ func ErrorHandler(isDev bool) fiber.ErrorHandler {
 		}
 
 		response := fiber.Map{
-			"status":  "code",
+			"status":  code,
 			"message": message,
 		}
 

@@ -7,20 +7,38 @@ import { AuthService } from '@/services'
 import { useToast } from 'vue-toastification'
 import { AxiosError } from 'axios'
 import { camelToTitle } from '@/utils/camelCaseSplit'
+import { useRouter } from 'vue-router'
+import type { LoginBody, RegisterBody } from '@/services/dto/auth.dto'
 
+const toast = useToast()
+const router = useRouter()
 const formRef = useTemplateRef<typeof Form>('formRef')
 const isRegister = shallowRef<boolean>(false)
-const toast = useToast()
 const fieldError = ref<{ field: string; message: string }[]>([])
+const formValue = ref<Record<string, string>>({
+  email: '',
+  password: '',
+  firstName: '',
+  lastName: '',
+})
 
 const handleSubmit = async (): Promise<void> => {
   fieldError.value = []
 
   try {
-    const payload = formRef?.value?.formValue
     if (isRegister.value) {
+      const payload: RegisterBody = {
+        email: formValue.value.email || '',
+        password: formValue.value.password || '',
+        firstName: formValue.value.firstName || '',
+        lastName: formValue.value.lastName || '',
+      }
       await AuthService.register(payload)
     } else {
+      const payload: LoginBody = {
+        email: formValue.value.email || '',
+        password: formValue.value.password || '',
+      }
       const { data } = await AuthService.login(payload)
       localStorage.setItem(
         'user',
@@ -34,6 +52,8 @@ const handleSubmit = async (): Promise<void> => {
 
     if(isRegister.value) {
       handleFormSwitch()
+    } else {
+      router.push({ name: 'home' })
     }
   } catch (error: unknown) {
     toast.error(`Error, ${isRegister.value ? 'register' : 'login'} failed`)
@@ -49,7 +69,12 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleFormSwitch = (): void => {
   isRegister.value = !isRegister.value
-  formRef.value?.clearInput()
+  formValue.value = {
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+  }
   fieldError.value = []
 }
 </script>
@@ -64,7 +89,7 @@ const handleFormSwitch = (): void => {
         </div>
 
         <div class="flex flex-col gap-3">
-          <Form ref="formRef">
+          <Form ref="formRef" :form-value="formValue">
             <template v-if="!isRegister" #default>
               <Input :invalid="fieldError.length > 0" field="email" label="Email" required />
               <Input

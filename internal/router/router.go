@@ -3,7 +3,6 @@ package router
 import (
 	"hafiztri123/hv1-job-tracker/internal/auth"
 	"hafiztri123/hv1-job-tracker/internal/config"
-	appError "hafiztri123/hv1-job-tracker/internal/error"
 	"hafiztri123/hv1-job-tracker/internal/handler"
 	"hafiztri123/hv1-job-tracker/internal/utils"
 
@@ -41,17 +40,8 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 	api.Post("/auth/login", h.LoginUserHandler)
 	api.Get("/health", h.HealthHandler)
 
-	api.Get("/auth/verify", auth.AuthMiddleware, func(c *fiber.Ctx) error {
-		userId, ok := c.Locals("userId").(string)
-		if !ok {
-			return appError.ErrUnauthorized
-		}
-
-		return utils.NewResponse(
-			c,
-			utils.WithData(userId),
-		)
-	})
+	api.Get("/auth/verify", auth.AuthMiddleware, h.VerifyTokenHandler)
+	api.Post("/auth/logout", auth.AuthMiddleware, h.LogoutHandler)
 
 	applications := api.Group("/applications")
 	applications.Use(auth.AuthMiddleware)
@@ -60,6 +50,8 @@ func setupRoutes(app *fiber.App, h *handler.Handler) {
 	applications.Delete("/:id", h.DeleteApplicationHandler)
 	applications.Put("/:id", h.UpdateApplicationHandler)
 	applications.Get("/options", h.GetApplicationOptionsHandler)
+	applications.Delete("/batch/delete", h.BatchDeleteApplicationHandler)
+	applications.Put("/batch/status", h.BatchUpdateStatusApplicationHandler)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{
